@@ -1,40 +1,48 @@
 package chinanko.chinanko.config;
+
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-    private AuthenticationProvider authenticationProvider;
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter, AuthenticationProvider authenticationProvider) {
-        this.authenticationProvider = authenticationProvider;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(
-                auth -> auth.requestMatchers("/api/v1/users/login").permitAll()
-                        .requestMatchers("/swagger-ui/index.html").hasRole("ADMIN")
-                        .requestMatchers("/graphql").hasRole("USER")
-                        .anyRequest().authenticated())
-                .httpBasic(withDefaults()).csrf(csrf -> csrf.disable())
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http
+            .csrf(csrf -> csrf.disable()) // Necesario para que GraphQL acepte POST
+            .authorizeHttpRequests(auth -> auth
+
+                // ✅ ENDPOINTS DE AUTENTICACIÓN
+                .requestMatchers("/api/auth/**").permitAll()
+
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                // Permitimos la interfaz gráfica y el endpoint de datos
+                .requestMatchers("/graphiql", "/graphql/**").permitAll()
+
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(sess -> sess
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -42,15 +50,14 @@ public class SecurityConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(List.of("http://localhost:8005"));
-        configuration.setAllowedMethods(List.of("GET","POST"));
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
-
+        // Nota: He agregado el puerto del Gateway (8081) y el "*" por seguridad en pruebas.
+        // Si prefieres ser estricto, deja solo tus puertos originales.
+        configuration.setAllowedOrigins(List.of("http://localhost:8005", "http://localhost:5173", "http://localhost:8081", "*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**",configuration);
-
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }

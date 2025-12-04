@@ -16,11 +16,11 @@ import chinanko.chinanko.mapper.ReportSuggestedPointMapper;
 import chinanko.chinanko.model.ReportSuggestedPoint;
 import chinanko.chinanko.model.SuggestedPoint;
 import chinanko.chinanko.model.TypeOfReportPoint;
-import chinanko.chinanko.model.User;
+import chinanko.chinanko.model.ProfileUser;
 import chinanko.chinanko.repository.ReportSuggestedPointRepository;
 import chinanko.chinanko.repository.SuggestedPointRepository;
 import chinanko.chinanko.repository.TypeOfReportPointRepository;
-import chinanko.chinanko.repository.UserRepository;
+import chinanko.chinanko.repository.ProfileUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +30,7 @@ public class ReportSuggestedPointServiceImpl implements ReportSuggestedPointServ
 
     private final ReportSuggestedPointRepository repository;
     private final SuggestedPointRepository suggestedPointRepository;
-    private final UserRepository userRepository;
+    private final ProfileUserRepository userRepository;
     private final TypeOfReportPointRepository typeRepository;
 
     @Override
@@ -40,7 +40,7 @@ public class ReportSuggestedPointServiceImpl implements ReportSuggestedPointServ
         SuggestedPoint point = suggestedPointRepository.findById(request.getSuggestedPointId())
                 .orElseThrow(() -> new EntityNotFoundException("Suggested Point not found"));
         
-        User user = userRepository.findById(request.getUserId())
+        ProfileUser user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         TypeOfReportPoint type = typeRepository.findById(request.getTypeOfReportPointId())

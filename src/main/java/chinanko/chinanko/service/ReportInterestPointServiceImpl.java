@@ -16,10 +16,10 @@ import chinanko.chinanko.mapper.ReportInterestPointMapper;
 import chinanko.chinanko.model.ReportInterestPoint;
 import chinanko.chinanko.model.InterestPoint;
 import chinanko.chinanko.model.TypeOfReportPoint;
-import chinanko.chinanko.model.User;
+import chinanko.chinanko.model.ProfileUser;
 import chinanko.chinanko.repository.ReportInterestPointRepository;
 import chinanko.chinanko.repository.InterestPointRepository;
-import chinanko.chinanko.repository.UserRepository; // Ajustar si es ProfileUserRepository
+import chinanko.chinanko.repository.ProfileUserRepository; // Ajustar si es ProfileUserRepository
 import chinanko.chinanko.repository.TypeOfReportPointRepository; // Asumido
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class ReportInterestPointServiceImpl implements ReportInterestPointServic
 
     private final ReportInterestPointRepository repository;
     private final InterestPointRepository interestPointRepository;
-    private final UserRepository userRepository;
+    private final ProfileUserRepository userRepository;
     private final TypeOfReportPointRepository typeRepository;
 
     @Override
@@ -40,7 +40,7 @@ public class ReportInterestPointServiceImpl implements ReportInterestPointServic
         InterestPoint point = interestPointRepository.findById(request.getInterestPointId())
                 .orElseThrow(() -> new EntityNotFoundException("Interest Point not found"));
         
-        User user = userRepository.findById(request.getUserId())
+        ProfileUser user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         TypeOfReportPoint type = typeRepository.findById(request.getTypeOfReportPointId())

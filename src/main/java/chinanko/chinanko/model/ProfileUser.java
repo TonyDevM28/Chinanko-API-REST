@@ -13,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,10 +43,8 @@ public class ProfileUser {
 
     // --- RELACIONES ---
 
-    // Relación Uno a Uno con User
-    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_id_user", nullable = false, unique = true)
-    private User user;
+    private Integer idUser;
 
     
 

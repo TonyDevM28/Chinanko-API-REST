@@ -43,7 +43,7 @@ public class Notification {
     // EL EMISOR: Quién creó esta notificación
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_id_user_creator")
-    private User creator;
+    private ProfileUser creator;
 
     // Relación en cascada: Al guardar la Notificación, se guardan los destinatarios
     @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)

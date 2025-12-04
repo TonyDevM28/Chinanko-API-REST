@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Value; // <--- IMPORTANTE: Agrega este import
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,14 +18,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor; // <--- Útil si usas lombok
 
 @Service
 public class SentimentAnalysisService {
 
-    private static final String API_KEY = "AeUcBvm0aQauJH87QPh7DLUcAxVlg5KBN3sZoGwvdm8nfs4D4mpmJQQJ99BIACLArgHXJ3w3AAAEACOGdamn";
+    // CAMBIO AQUÍ: Inyectamos el valor desde la configuración
+    @Value("${azure.cognitive.key}")
+    private String apiKey; 
+
     private static final String ENDPOINT = "https://tonyindustriesuwu.cognitiveservices.azure.com/language/:analyze-text?api-version=2023-04-01";
 
-    // Lista local de palabras ofensivas (puedes mover esto a BD si prefieres)
+    // ... (el resto de tu lista BAD_WORDS y variables sigue igual) ...
     private static final List<String> BAD_WORDS = Arrays.asList(
         "idiota", "estupido", "imbecil", "basura", "maldito", 
         "puto", "mierda", "pendejo", "verga", "chinga"
@@ -34,13 +39,13 @@ public class SentimentAnalysisService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public TextAnalysisResult analyze(String text) {
-        // 1. Validación Local Previa (Ahorra costos de API y latencia)
+        // ... (tu validación de profanity sigue igual) ...
         if (containsProfanity(text)) {
-            return new TextAnalysisResult("negative", BigDecimal.ONE, true); // Es ofensivo, lo marcamos negativo y peligroso
+             return new TextAnalysisResult("negative", BigDecimal.ONE, true);
         }
 
-        // 2. Si pasa el filtro local, consultamos a Azure para el sentimiento
         try {
+            // ... (preparación del map document y analysisInput sigue igual) ...
             Map<String, Object> document = Map.of("id", "1", "language", "es", "text", text);
             Map<String, Object> analysisInput = Map.of("documents", List.of(document));
             Map<String, Object> body = Map.of(
@@ -51,8 +56,11 @@ public class SentimentAnalysisService {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Ocp-Apim-Subscription-Key", API_KEY);
+            
+            // CAMBIO AQUÍ: Usamos la variable de instancia apiKey (minúscula)
+            headers.set("Ocp-Apim-Subscription-Key", apiKey); 
 
+            // ... (el resto del método try/catch sigue igual) ...
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
             String response = restTemplate.postForObject(ENDPOINT, request, String.class);
             
@@ -70,11 +78,12 @@ public class SentimentAnalysisService {
         }
     }
 
+    // ... (resto de métodos y clase interna siguen igual)
     private boolean containsProfanity(String text) {
+        // ... tu código original ...
         if (text == null || text.trim().isEmpty()) return false;
         String normalizedText = text.toLowerCase();
         for (String word : BAD_WORDS) {
-            // Usamos límites de palabra (\\b) para evitar falsos positivos
             Pattern pattern = Pattern.compile("\\b" + Pattern.quote(word) + "\\b", Pattern.CASE_INSENSITIVE);
             if (pattern.matcher(normalizedText).find()) {
                 return true;
@@ -88,6 +97,6 @@ public class SentimentAnalysisService {
     public static class TextAnalysisResult {
         private String sentiment;
         private BigDecimal score;
-        private boolean isOffensive; // Nuevo campo
+        private boolean isOffensive;
     }
 }

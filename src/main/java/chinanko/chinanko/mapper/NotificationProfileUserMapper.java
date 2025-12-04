@@ -15,7 +15,7 @@ public class NotificationProfileUserMapper {
                 .isRead(n.getState())
                 .description(n.getNotification().getDescription())
                 .typeName(n.getNotification().getTypeOfNotification().getType())
-                .creatorName(n.getNotification().getCreator() != null ? n.getNotification().getCreator().getUsername() : "System")
+                .creatorName(n.getNotification().getCreator() != null ? n.getNotification().getCreator().getFirstName() : "System")
                 .build();
     }
 }

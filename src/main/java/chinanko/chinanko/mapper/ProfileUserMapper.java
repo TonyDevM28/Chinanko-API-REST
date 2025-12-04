@@ -1,54 +1,53 @@
 package chinanko.chinanko.mapper;
 
 import org.springframework.stereotype.Component;
-
 import chinanko.chinanko.dto.ProfileUserRequest;
 import chinanko.chinanko.dto.ProfileUserResponse;
+import chinanko.chinanko.dto.UserDto;
 import chinanko.chinanko.model.ProfileUser;
 import chinanko.chinanko.model.Town;
-import chinanko.chinanko.model.User;
 
 @Component
 public class ProfileUserMapper {
-   public static ProfileUserResponse toResponse(ProfileUser p){
-    if(p == null) return null;
 
-    // Usamos variables auxiliares seguras
-    String userName = (p.getUser() != null) ? p.getUser().getNameUser() : "Desconocido";
-    String townName = (p.getTown() != null) ? p.getTown().getNameTown() : "Sin Ciudad";
-    
-    // Nota: Si realmente necesitas usar los Mappers de User y Town porque tienen lógica 
-    // especial de formateo, mantén tu lógica anterior pero agrega la validación null 
-    // en el builder como te mostré en el punto 1.
+    // AHORA ACEPTA EL UserDto COMO SEGUNDO PARÁMETRO
+    public ProfileUserResponse toResponse(ProfileUser p, UserDto u) {
+        if (p == null) return null;
 
-    return ProfileUserResponse.builder()
-        .firstName(p.getFirstName())
-        .lastName(p.getLastName())
-        .bornDate(p.getBornDate())
-        .user(userName) // Ahora es seguro
-        .town(townName) // Ahora es seguro
-        .build();
-}
+        String townName = (p.getTown() != null) ? p.getTown().getNameTown() : "Sin Ciudad";
+        
+        // Manejo seguro de nulos por si el microservicio de Auth falla o no trae user
+        String authUsername = (u != null) ? u.getNameUser() : "Desconocido";
+        String authEmail = (u != null) ? u.getEmail() : "No disponible";
 
-    public static ProfileUser toEntity(ProfileUserRequest p){
-        if(p==null) return null;
-        ProfileUser r = new ProfileUser();
-        r.setIdProfileUser(r.getIdProfileUser());
-        r.setFirstName(p.getFirstName());
-        r.setLastName(p.getLastName());
-        r.setBornDate(p.getBornDate());
-        r.setUser(User.builder().idUser(p.getUserId()).build());
-        r.setTown(Town.builder().idTown(p.getTownId()).build());
-        return r;
+        return ProfileUserResponse.builder()
+            .idProfileUser(p.getIdProfileUser())
+            .firstName(p.getFirstName())
+            .lastName(p.getLastName())
+            .bornDate(p.getBornDate())
+            .town(townName)
+            .username(authUsername) // Dato externo
+            .email(authEmail)       // Dato externo
+            .build();
     }
 
-    public static void copyToEntity(ProfileUser p, ProfileUserRequest r){
-        if(p==null || r==null) return;
+    public ProfileUser toEntity(ProfileUserRequest p) {
+        if (p == null) return null;
+        return ProfileUser.builder()
+            .firstName(p.getFirstName())
+            .lastName(p.getLastName())
+            .bornDate(p.getBornDate())
+            .idUser(p.getUserId()) // Guardamos el ID del usuario externo
+            .town(Town.builder().idTown(p.getTownId()).build())
+            .build();
+    }
+
+    public void copyToEntity(ProfileUser p, ProfileUserRequest r) {
+        if (p == null || r == null) return;
         p.setFirstName(r.getFirstName());
         p.setLastName(r.getLastName());
         p.setBornDate(r.getBornDate());
-        p.setUser(User.builder().idUser(r.getUserId()).build());
+        p.setIdUser(r.getUserId());
         p.setTown(Town.builder().idTown(r.getTownId()).build());
-        
     }
 }

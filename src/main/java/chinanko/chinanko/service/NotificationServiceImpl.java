@@ -17,11 +17,11 @@ import chinanko.chinanko.mapper.NotificationMapper;
 import chinanko.chinanko.model.Notification;
 import chinanko.chinanko.model.NotificationProfileUser;
 import chinanko.chinanko.model.TypeOfNotification;
-import chinanko.chinanko.model.User;
+import chinanko.chinanko.model.ProfileUser;
 import chinanko.chinanko.repository.NotificationProfileUserRepository;
 import chinanko.chinanko.repository.NotificationRepository;
 import chinanko.chinanko.repository.TypeOfNotificationRepository;
-import chinanko.chinanko.repository.UserRepository;
+import chinanko.chinanko.repository.ProfileUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -31,14 +31,14 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final NotificationProfileUserRepository profileUserRepository;
-    private final UserRepository userRepository;
+    private final ProfileUserRepository userRepository;
     private final TypeOfNotificationRepository typeRepository;
 
     @Override
     @Transactional
     public NotificationResponse create(NotificationRequest request) {
         // 1. Validar entidades base
-        User creator = userRepository.findById(request.getCreatorUserId())
+        ProfileUser creator = userRepository.findById(request.getCreatorUserId())
                 .orElseThrow(() -> new EntityNotFoundException("Creator User not found"));
 
         TypeOfNotification type = typeRepository.findById(request.getTypeNotificationId())
@@ -54,7 +54,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         // 3. Crear destinatarios (Cascada)
         for (Integer recipientId : request.getRecipientUserIds()) {
-            User recipient = userRepository.findById(recipientId)
+            ProfileUser recipient = userRepository.findById(recipientId)
                     .orElseThrow(() -> new EntityNotFoundException("Recipient User not found: " + recipientId));
 
             NotificationProfileUser notifUser = NotificationProfileUser.builder()

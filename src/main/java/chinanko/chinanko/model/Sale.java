@@ -36,7 +36,7 @@ public class Sale {
     // NUEVO: Relación con User para corregir el error de llave foránea
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_id_user", nullable = false)
-    private User user;
+    private ProfileUser user;
 
     // orphanRemoval = true permite borrar productos de la venta si se quitan de la lista
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)

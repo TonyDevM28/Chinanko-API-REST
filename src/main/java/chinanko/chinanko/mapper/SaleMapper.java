@@ -29,7 +29,7 @@ public class SaleMapper {
         return SaleResponse.builder()
                 .idSale(e.getIdSale())
                 .total(e.getTotal())
-                .userName(e.getUser() != null ? e.getUser().getNameUser() : null)
+                .userName(e.getUser() != null ? e.getUser().getFirstName() + " " + e.getUser().getLastName(): null)
                 .products(productResponses)
                 .build();
     }

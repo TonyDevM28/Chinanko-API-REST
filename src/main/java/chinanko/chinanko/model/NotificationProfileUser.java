@@ -36,7 +36,7 @@ public class NotificationProfileUser {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_id_user", nullable = false)
-    private User user; // El receptor
+    private ProfileUser user; // El receptor
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_id_notification", nullable = false)

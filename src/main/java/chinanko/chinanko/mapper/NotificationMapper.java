@@ -18,7 +18,7 @@ public class NotificationMapper {
                 .idNotification(e.getIdNotification())
                 .description(e.getDescription())
                 .typeName(e.getTypeOfNotification() != null ? e.getTypeOfNotification().getType() : "Unknown")
-                .creatorName(e.getCreator() != null ? e.getCreator().getNameUser() : "System") // Asumiendo getFirstName en User
+                .creatorName(e.getCreator() != null ? e.getCreator().getFirstName() + " " + e.getCreator().getLastName(): "System") // Asumiendo getFirstName en User
                 .recipientsCount(e.getRecipients() != null ? e.getRecipients().size() : 0)
                 .build();
     }
@@ -33,7 +33,7 @@ public class NotificationMapper {
                 // Datos aplanados desde la notificación padre
                 .description(e.getNotification().getDescription())
                 .typeName(e.getNotification().getTypeOfNotification().getType())
-                .creatorName(e.getNotification().getCreator() != null ? e.getNotification().getCreator().getUsername() : "System")
+                .creatorName(e.getNotification().getCreator() != null ? e.getNotification().getCreator().getFirstName() : "System")
                 .build();
     }
 }

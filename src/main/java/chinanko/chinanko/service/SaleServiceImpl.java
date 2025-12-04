@@ -17,10 +17,10 @@ import chinanko.chinanko.mapper.SaleMapper;
 import chinanko.chinanko.model.Product;
 import chinanko.chinanko.model.Sale;
 import chinanko.chinanko.model.SalesProduct;
-import chinanko.chinanko.model.User;
+import chinanko.chinanko.model.ProfileUser;
 import chinanko.chinanko.repository.ProductRepository;
 import chinanko.chinanko.repository.SaleRepository;
-import chinanko.chinanko.repository.UserRepository;
+import chinanko.chinanko.repository.ProfileUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -30,13 +30,13 @@ public class SaleServiceImpl implements SaleService {
 
     private final SaleRepository saleRepository;
     private final ProductRepository productRepository; 
-    private final UserRepository userRepository; // Inyectamos el repo de usuarios
+    private final ProfileUserRepository userRepository; // Inyectamos el repo de usuarios
 
     @Override
     @Transactional
     public SaleResponse create(SaleRequest request) {
         // 1. Buscar al usuario para asignarlo a la venta
-        User user = userRepository.findById(request.getUserId())
+        ProfileUser user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.getUserId()));
 
         // 2. Crear la instancia de la Venta (Sale) y asignar usuario
